@@ -1,40 +1,22 @@
-name: CI + Deploy
+name: Deploy
 
 on:
   push:
     branches: [main]
     paths:
       - "notes-app-preview/**"
-      - ".github/workflows/frontend.yaml"
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: notes-app-preview
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: notes-app-preview/package-lock.json
+      - name: Install Vercel CLI
+        run: npm install -g vercel
 
-      - name: Install deps
-        run: npm ci
-
-    
-
-      - name: Build
-        run: npm run build
-
-
-
-      - name: Deploy
-        run: npx vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy to Vercel
+        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
