@@ -1,10 +1,11 @@
-name: Deploy to Vercel
+name: Vercel Deploy (Preview + Production)
 
 on:
   push:
-    branches: [main]
-    paths:
-      - "notes-app-preview/**"
+    branches:
+      - main
+      - dev
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -19,7 +20,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Ensure Node is available + caching (helps npx)
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -27,7 +27,6 @@ jobs:
           cache: "npm"
           cache-dependency-path: notes-app-preview/package-lock.json
 
-      # Fail early if token is missing (saves debugging time)
       - name: Validate Vercel token
         run: |
           if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
@@ -35,10 +34,25 @@ jobs:
             exit 1
           fi
 
-      # Deploy
+      - name: Install dependencies
+        run: npm ci
+
       - name: Deploy to Vercel
         run: |
-          npx vercel@latest deploy \
-            --prod \
-            --yes \
-            --token=${{ secrets.VERCEL_TOKEN }}
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "🚀 Production deploy"
+            npx vercel@latest deploy \
+              --prod \
+              --yes \
+              --token=${{ secrets.VERCEL_TOKEN }} \
+              --scope=${{ secrets.VERCEL_ORG_ID }} \
+              --project=${{ secrets.VERCEL_PROJECT_ID }}
+          else
+            echo "🔍 Preview deploy"
+            npx vercel@latest deploy \
+              --yes \
+              --token=${{ secrets.VERCEL_TOKEN }} \
+              --scope=${{ secrets.VERCEL_ORG_ID }} \
+              --project=${{ secrets.VERCEL_PROJECT_ID }}
+          fi
+
