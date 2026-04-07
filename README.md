@@ -1,5 +1,5 @@
 📚 Study Material & Notes Sharing Platform
-📖 Project Overview
+
 
 The Study Material & Notes Sharing Platform is a centralized system designed to help students upload, share, search, and download academic resources in an organized manner. Many students struggle to find quality notes before exams because materials are scattered across messaging apps, personal drives, and different platforms.
 
