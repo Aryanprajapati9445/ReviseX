@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to Vercel
 
 on:
   push:
@@ -11,12 +11,34 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: notes-app-preview
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Vercel CLI
-        run: npm install -g vercel
+      # Ensure Node is available + caching (helps npx)
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: notes-app-preview/package-lock.json
 
+      # Fail early if token is missing (saves debugging time)
+      - name: Validate Vercel token
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "❌ VERCEL_TOKEN is not set"
+            exit 1
+          fi
+
+      # Deploy
       - name: Deploy to Vercel
-        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npx vercel@latest deploy \
+            --prod \
+            --yes \
+            --token=${{ secrets.VERCEL_TOKEN }}
