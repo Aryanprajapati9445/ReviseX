@@ -1220,8 +1220,8 @@ function StudentLoginPage() {
                 <p style={{ color:"#444", fontSize:12, lineHeight:1.8 }}>
                   <span style={{ color:"#a78bfa", fontWeight:600 }}>Format: </span>
                   <code style={{ color:"#777", background:"rgba(255,255,255,0.04)", padding:"1px 6px", borderRadius:4 }}>name.YYendYYbranch&lt;roll&gt;@kiet.edu</code><br/>
-                  <span style={{ color:"#a78bfa", fontWeight:600 }}>Example: </span>
-                  <code style={{ color:"#777", background:"rgba(255,255,255,0.04)", padding:"1px 6px", borderRadius:4 }}>xyz.2x2xcsxxxx@kiet.edu</code>
+                  {/* <span style={{ color:"#a78bfa", fontWeight:600 }}>Example: </span> */}
+                  {/* <code style={{ color:"#777", background:"rgba(255,255,255,0.04)", padding:"1px 6px", borderRadius:4 }}>xyz.2x2xcsxxxx@kiet.edu</code> */}
                 </p>
               </div>
               <button onClick={handleDetect} className="btn-scale" style={{ width:"100%", background:"linear-gradient(135deg,#7c3aed,#a78bfa)", color:"#fff", border:"none", padding:"13px", borderRadius:12, fontSize:15, fontWeight:700, fontFamily:"Syne,sans-serif", boxShadow:"0 4px 20px rgba(124,58,237,0.4)" }}>
