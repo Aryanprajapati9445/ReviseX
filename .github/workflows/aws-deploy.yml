@@ -27,7 +27,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          aws s3 sync dist/ s3://revisex --delete
+          aws s3 sync dist/ s3://revisex-frontend --delete
 
       - name: Invalidate CloudFront cache
         env:
@@ -36,5 +36,5 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id E21PAW4VW19RL4 \
+            --distribution-id EAWJ0MM20RMGH \
             --paths "/*"
