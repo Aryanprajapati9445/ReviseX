@@ -1,0 +1,33 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'notes-app-backend/**'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/ReviseX
+            
+            # Pull latest changes from main branch
+            git pull origin main
+            
+            # Install dependencies
+            cd notes-app-backend
+            npm install
+            
+            # Restart the backend process (assuming PM2)
+            pm2 restart all
