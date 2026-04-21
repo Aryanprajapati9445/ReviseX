@@ -1,6 +1,13 @@
 node_modules/
 .env
-.env.local
+.env.*
 *.log
 dist/
 build/
+.DS_Store
+coverage/
+
+cf_private_key.pem
+cf_public_key.pem
+cf_key_b64.txt
+cloudfront_setup.md.resolved

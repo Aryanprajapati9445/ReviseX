@@ -1,0 +1,38 @@
+{
+  "_comment": "Apply this policy to revisex-notes-files to allow ONLY CloudFront (via OAC) to read objects. No direct S3 access for anyone.",
+  "_instructions": [
+    "1. Go to AWS S3 Console → revisex-notes-files → Permissions → Bucket Policy",
+    "2. Replace ACCOUNT_ID and DISTRIBUTION_ID with your actual values",
+    "3. Go to Block Public Access settings → Ensure ALL four blocks are ON",
+    "4. Test: try accessing a direct S3 URL — it must return 403 AccessDenied"
+  ],
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCloudFrontOACOnly",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cloudfront.amazonaws.com"
+      },
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::revisex-notes-files/*",
+      "Condition": {
+        "StringEquals": {
+          "AWS:SourceArn": "arn:aws:cloudfront::ACCOUNT_ID:distribution/DISTRIBUTION_ID"
+        }
+      }
+    },
+    {
+      "Sid": "DenyDirectS3Access",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::revisex-notes-files/*",
+      "Condition": {
+        "StringNotEquals": {
+          "AWS:SourceArn": "arn:aws:cloudfront::ACCOUNT_ID:distribution/DISTRIBUTION_ID"
+        }
+      }
+    }
+  ]
+}

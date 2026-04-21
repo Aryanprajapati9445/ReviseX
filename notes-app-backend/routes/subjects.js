@@ -1,19 +1,23 @@
 import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
 import Subject from '../models/Subject.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// GET all subjects
+// ── GET /api/subjects ── Public ───────────────────────────────────────
 router.get('/', async (req, res) => {
     try {
         const subjects = await Subject.find();
+        res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
         res.json(subjects);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// GET subjects by branch
+
+// ── GET /api/subjects/branch/:branch ── Public ────────────────────────
 router.get('/branch/:branch', async (req, res) => {
     try {
         const subjects = await Subject.find({ branch: req.params.branch });
@@ -23,7 +27,7 @@ router.get('/branch/:branch', async (req, res) => {
     }
 });
 
-// GET single subject
+// ── GET /api/subjects/:id ── Public ──────────────────────────────────
 router.get('/:id', async (req, res) => {
     try {
         const subject = await Subject.findOne({ id: req.params.id });
@@ -34,13 +38,17 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// CREATE new subject
-router.post('/', async (req, res) => {
+// ── POST /api/subjects ── Admin only ──────────────────────────────────
+router.post('/', authMiddleware, async (req, res) => {
     try {
         const { name, description, branch, semester, color, icon } = req.body;
 
+        if (!name) {
+            return res.status(400).json({ error: 'Subject name is required.' });
+        }
+
         const subject = new Subject({
-            id: `subject_${Date.now()}`,
+            id: `subject_${uuidv4()}`,  // UUID — unpredictable, non-enumerable
             name,
             description,
             branch,
@@ -56,8 +64,8 @@ router.post('/', async (req, res) => {
     }
 });
 
-// UPDATE subject
-router.put('/:id', async (req, res) => {
+// ── PUT /api/subjects/:id ── Admin only ───────────────────────────────
+router.put('/:id', authMiddleware, async (req, res) => {
     try {
         const { name, description, branch, semester, color, icon } = req.body;
 
@@ -74,8 +82,8 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE subject
-router.delete('/:id', async (req, res) => {
+// ── DELETE /api/subjects/:id ── Admin only ────────────────────────────
+router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const subject = await Subject.findOneAndDelete({ id: req.params.id });
         if (!subject) return res.status(404).json({ error: 'Subject not found' });
