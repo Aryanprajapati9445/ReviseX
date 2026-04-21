@@ -1,6 +1,6 @@
 // API Configuration
-// In production, set VITE_API_BASE_URL in your .env file
-const API_BASE_URL = "https://d2x494c4tgywmr.cloudfront.net/api";
+// Set VITE_API_BASE_URL in .env.production or as a GitHub Secret
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://d2x494c4tgywmr.cloudfront.net/api';
 
 // Admin token stored in sessionStorage — expires when tab closes (more secure than localStorage)
 const tokenStore = {
