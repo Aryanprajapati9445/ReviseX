@@ -1,6 +1,6 @@
 // API Configuration
 // In production, set VITE_API_BASE_URL in your .env file
-const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = "https://d2x494c4tgywmr.cloudfront.net/api";
 
 // Admin token stored in sessionStorage — expires when tab closes (more secure than localStorage)
 const tokenStore = {
@@ -11,7 +11,7 @@ const tokenStore = {
     set(token) {
         this._token = token;
         if (token) sessionStorage.setItem('admin_token', token);
-        else        sessionStorage.removeItem('admin_token');
+        else sessionStorage.removeItem('admin_token');
     },
 
     clear() {
@@ -202,7 +202,7 @@ export const adminAPI = {
 // ============ FILE UPLOAD API ============
 
 const MULTIPART_THRESHOLD = 100 * 1024 * 1024; // 100 MB
-const CHUNK_SIZE           =  10 * 1024 * 1024; // 10 MB per chunk
+const CHUNK_SIZE = 10 * 1024 * 1024; // 10 MB per chunk
 
 /**
  * Phase 3 — presigned PUT upload flow.
@@ -219,9 +219,9 @@ const CHUNK_SIZE           =  10 * 1024 * 1024; // 10 MB per chunk
 async function presignedUpload(file, onProgress) {
     // Step 1 — get presigned URL from backend
     const presignRes = await fetch(`${API_BASE_URL}/upload/presign`, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json', ...tokenStore.authHeader() },
-        body:    JSON.stringify({ filename: file.name, contentType: file.type, sizeBytes: file.size }),
+        body: JSON.stringify({ filename: file.name, contentType: file.type, sizeBytes: file.size }),
     });
     if (!presignRes.ok) {
         const { error } = await presignRes.json().catch(() => ({}));
@@ -235,8 +235,8 @@ async function presignedUpload(file, onProgress) {
         xhr.upload.onprogress = (e) => {
             if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
         };
-        xhr.onload    = () => (xhr.status === 200 || xhr.status === 204 ? resolve() : reject(new Error('Upload to storage failed.')));
-        xhr.onerror   = () => reject(new Error('Network error during upload.'));
+        xhr.onload = () => (xhr.status === 200 || xhr.status === 204 ? resolve() : reject(new Error('Upload to storage failed.')));
+        xhr.onerror = () => reject(new Error('Network error during upload.'));
         xhr.ontimeout = () => reject(new Error('Upload timed out.'));
         xhr.open('PUT', uploadUrl);
         xhr.setRequestHeader('Content-Type', file.type);
@@ -246,9 +246,9 @@ async function presignedUpload(file, onProgress) {
 
     // Step 3 — confirm with backend
     const confirmRes = await fetch(`${API_BASE_URL}/upload/confirm`, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json', ...tokenStore.authHeader() },
-        body:    JSON.stringify({ fileKey, fileName: file.name, mimeType: file.type, sizeBytes: file.size }),
+        body: JSON.stringify({ fileKey, fileName: file.name, mimeType: file.type, sizeBytes: file.size }),
     });
     if (!confirmRes.ok) {
         const { error } = await confirmRes.json().catch(() => ({}));
@@ -268,9 +268,9 @@ async function presignedUpload(file, onProgress) {
 async function multipartUpload(file, onProgress) {
     // Start multipart session
     const startRes = await fetch(`${API_BASE_URL}/upload/multipart/start`, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json', ...tokenStore.authHeader() },
-        body:    JSON.stringify({ filename: file.name, contentType: file.type }),
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
     });
     if (!startRes.ok) {
         const { error } = await startRes.json().catch(() => ({}));
@@ -279,8 +279,8 @@ async function multipartUpload(file, onProgress) {
     const { uploadId, fileKey } = await startRes.json();
 
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-    const uploaded    = new Array(totalChunks).fill(0);
-    const parts       = [];
+    const uploaded = new Array(totalChunks).fill(0);
+    const parts = [];
 
     const uploadChunk = async (partNumber) => {
         const start = (partNumber - 1) * CHUNK_SIZE;
@@ -288,9 +288,9 @@ async function multipartUpload(file, onProgress) {
 
         // Get presigned URL for this chunk
         const partRes = await fetch(`${API_BASE_URL}/upload/multipart/presign-part`, {
-            method:  'POST',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json', ...tokenStore.authHeader() },
-            body:    JSON.stringify({ fileKey, uploadId, partNumber }),
+            body: JSON.stringify({ fileKey, uploadId, partNumber }),
         });
         const { url } = await partRes.json();
 
@@ -303,7 +303,7 @@ async function multipartUpload(file, onProgress) {
                     onProgress(Math.round((total / file.size) * 100));
                 }
             };
-            xhr.onload  = () => resolve(xhr.getResponseHeader('ETag') ?? '');
+            xhr.onload = () => resolve(xhr.getResponseHeader('ETag') ?? '');
             xhr.onerror = () => reject(new Error(`Chunk ${partNumber} upload failed.`));
             xhr.open('PUT', url);
             xhr.send(chunk);
@@ -320,9 +320,9 @@ async function multipartUpload(file, onProgress) {
 
     // Complete multipart upload
     const completeRes = await fetch(`${API_BASE_URL}/upload/multipart/complete`, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json', ...tokenStore.authHeader() },
-        body:    JSON.stringify({
+        body: JSON.stringify({
             fileKey, uploadId, parts,
             fileName: file.name, mimeType: file.type, sizeBytes: file.size,
         }),
@@ -354,9 +354,9 @@ export const uploadAPI = {
     /** Abort an in-progress multipart upload session. */
     abortMultipart: async (fileKey, uploadId) => {
         await fetch(`${API_BASE_URL}/upload/multipart/abort`, {
-            method:  'POST',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json', ...tokenStore.authHeader() },
-            body:    JSON.stringify({ fileKey, uploadId }),
+            body: JSON.stringify({ fileKey, uploadId }),
         });
     },
 };
