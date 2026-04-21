@@ -2,12 +2,19 @@ import { Suspense, lazy } from "react";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useApp } from "../context/AppContext.jsx";
 import GlobalStyle from "../components/GlobalStyle.jsx";
-import ThreeBackground from "../components/ThreeBackground.jsx";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import ErrorBoundary from "../components/ErrorBoundary.jsx";
-import AdminLoginModal from "../features/auth/AdminLoginModal.jsx";
-import { StudentLoginPage, StudentLoginModal } from "../features/auth/StudentAuthModal.jsx";
+
+// Heavy/optional components — deferred off the critical path
+const ThreeBackground  = lazy(() => import("../components/ThreeBackground.jsx"));
+const AdminLoginModal  = lazy(() => import("../features/auth/AdminLoginModal.jsx"));
+const StudentLoginPage = lazy(() =>
+  import("../features/auth/StudentAuthModal.jsx").then(m => ({ default: m.StudentLoginPage }))
+);
+const StudentLoginModal = lazy(() =>
+  import("../features/auth/StudentAuthModal.jsx").then(m => ({ default: m.StudentLoginModal }))
+);
 import { SkeletonGrid } from "../components/Skeleton.jsx";
 import { useOffline } from "../hooks/useOffline.js";
 
@@ -71,7 +78,9 @@ function LoginRoute() {
   if (student) return <Navigate to="/" replace />;
   return (
     <div style={{ minHeight: "100vh", background: "#05050f" }}>
-      <StudentLoginPage />
+      <Suspense fallback={<PageFallback />}>
+        <StudentLoginPage />
+      </Suspense>
     </div>
   );
 }
@@ -86,7 +95,10 @@ export default function App() {
   return (
     <>
       <GlobalStyle />
-      <ThreeBackground />
+      {/* Defer three.js — page renders instantly, background fades in after */}
+      <Suspense fallback={null}>
+        <ThreeBackground />
+      </Suspense>
       <ErrorBoundary>
         <Routes>
           {/* Public: login page — redirects to / if already logged in */}
@@ -111,8 +123,8 @@ export default function App() {
           </Route>
         </Routes>
 
-        {showLogin        && <AdminLoginModal />}
-        {showStudentLogin && <StudentLoginModal />}
+        {showLogin        && <Suspense fallback={null}><AdminLoginModal /></Suspense>}
+        {showStudentLogin && <Suspense fallback={null}><StudentLoginModal /></Suspense>}
         <OfflineBanner />
       </ErrorBoundary>
     </>

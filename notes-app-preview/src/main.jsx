@@ -17,3 +17,11 @@ createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </StrictMode>
 );
+
+// Prefetch three.js during browser idle time so the background appears quickly
+// without ever blocking the initial render or main thread.
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => import('./components/ThreeBackground.jsx'));
+} else {
+  setTimeout(() => import('./components/ThreeBackground.jsx'), 200);
+}

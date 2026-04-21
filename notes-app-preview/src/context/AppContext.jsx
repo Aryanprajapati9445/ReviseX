@@ -79,11 +79,12 @@ export function AppProvider({ children }) {
   }, [refreshNotes]);
 
   useEffect(() => {
+    if (!student) return;   // don't fetch until logged in
     const ctrl = new AbortController();
     refreshNotes(ctrl.signal);
     refreshSections(ctrl.signal);
     return () => ctrl.abort();
-  }, [refreshNotes, refreshSections]);
+  }, [student, refreshNotes, refreshSections]);
 
   return (
     <AppCtx.Provider value={{
