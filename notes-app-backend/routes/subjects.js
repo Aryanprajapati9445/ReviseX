@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const subjects = await Subject.find();
-        res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+        res.setHeader('Cache-Control', 'no-cache');
         res.json(subjects);
     } catch (error) {
         res.status(500).json({ error: error.message });

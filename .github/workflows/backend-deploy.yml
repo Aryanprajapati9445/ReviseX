@@ -22,12 +22,18 @@ jobs:
           script: |
             cd ~/ReviseX
             
-            # Pull latest changes from main branch
+            # Ensure sparse checkout is still set (safe to run every time)
+            git sparse-checkout init --cone
+            git sparse-checkout set notes-app-backend
+
+            # Pull only backend changes
             git pull origin main
-            
-            # Install dependencies
+
+            # Go into backend
             cd notes-app-backend
-            npm install
-            
-            # Restart the backend process (assuming PM2)
-            pm2 restart all
+
+            # Install dependencies safely
+            npm ci
+
+            # Restart only backend process (CHANGE NAME)
+            pm2 restart backend

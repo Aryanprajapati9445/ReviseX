@@ -7,7 +7,7 @@ import SubjectIcon from "../../components/SubjectIcon.jsx";
 const COLOR_PRESETS = ["#f59e0b","#06b6d4","#8b5cf6","#10b981","#3b82f6","#f97316","#ec4899","#ef4444","#a78bfa","#14b8a6","#fb923c","#22d3ee","#84cc16","#e879f9","#f43f5e"];
 
 /** Admin tab for creating, editing, and deleting subjects. */
-export default function SubjectsManagerTab({ sections, setSections, notes }) {
+export default function SubjectsManagerTab({ sections, setSections, notes, invalidateSubjects }) {
   const { success: showSuccess, error: showError } = useToast();
   const [newSub,  setNewSub]  = useState({ label: "", color: "#a78bfa" });
   const [editId,  setEditId]  = useState(null);
@@ -25,6 +25,7 @@ export default function SubjectsManagerTab({ sections, setSections, notes }) {
       const created = await subjectsAPI.create({ name: newSub.label.trim(), description: "", color: newSub.color });
       setSections(prev => [...prev, { id: created.id, label: created.name, color: created.color }]);
       setNewSub({ label: "", color: "#a78bfa" });
+      invalidateSubjects();
       showSuccess("Subject added!");
     } catch (e) {
       setError(getFriendlyError(e));
@@ -37,6 +38,7 @@ export default function SubjectsManagerTab({ sections, setSections, notes }) {
     try {
       await subjectsAPI.delete(sec.id);
       setSections(prev => prev.filter(s => s.id !== sec.id));
+      invalidateSubjects();
       showSuccess(`"${sec.label}" deleted.`);
     } catch (e) { showError(getFriendlyError(e)); }
   }
@@ -48,6 +50,7 @@ export default function SubjectsManagerTab({ sections, setSections, notes }) {
       const updated = await subjectsAPI.update(sec.id, { name: editData.label.trim(), color: editData.color });
       setSections(prev => prev.map(s => s.id === sec.id ? { ...s, label: updated.name, color: updated.color } : s));
       setEditId(null);
+      invalidateSubjects();
       showSuccess("Subject updated!");
     } catch (e) { showError(getFriendlyError(e)); }
     finally { setSaving(false); }

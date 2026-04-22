@@ -34,7 +34,7 @@ function makeItem(file, defaults) {
 
 /** Protected admin dashboard — upload notes, manage notes, manage subjects. */
 export default function AdminPage() {
-  const { notes, setNotes, invalidateNotes, sections, setSections } = useApp();
+  const { notes, setNotes, invalidateNotes, sections, setSections, invalidateSubjects } = useApp();
   const { success: showSuccess, error: showError } = useToast();
 
   const [tab,      setTab]      = useState("upload");
@@ -355,7 +355,7 @@ export default function AdminPage() {
       {/* ── MANAGE TAB ── */}
       {tab === "manage" && <ManageTab notes={notes} sections={sections} onDelete={handleDelete} />}
 
-      {tab === "subjects" && <SubjectsManagerTab sections={sections} setSections={setSections} notes={notes} />}
+      {tab === "subjects" && <SubjectsManagerTab sections={sections} setSections={setSections} notes={notes} invalidateSubjects={invalidateSubjects} />}
     </div>
   );
 }

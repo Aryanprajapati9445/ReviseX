@@ -78,6 +78,13 @@ export function AppProvider({ children }) {
     refreshNotes(ctrl.signal);
   }, [refreshNotes]);
 
+  /** Call after admin creates/edits/deletes a subject so the list refreshes. */
+  const invalidateSubjects = useCallback(() => {
+    invalidateCachePrefix("subjects-");
+    const ctrl = new AbortController();
+    refreshSections(ctrl.signal);
+  }, [refreshSections]);
+
   useEffect(() => {
     if (!student) return;   // don't fetch until logged in
     const ctrl = new AbortController();
@@ -89,7 +96,7 @@ export function AppProvider({ children }) {
   return (
     <AppCtx.Provider value={{
       notes, setNotes: setNotesState, invalidateNotes,
-      sections, setSections,
+      sections, setSections, invalidateSubjects,
       isAdmin, setIsAdmin,
       showLogin, setShowLogin,
       showStudentLogin, setShowStudentLogin,
