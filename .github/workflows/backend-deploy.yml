@@ -36,4 +36,4 @@ jobs:
             npm ci
 
             # Restart only backend process (CHANGE NAME)
-            pm2 restart backend
+            pm2 restart all
