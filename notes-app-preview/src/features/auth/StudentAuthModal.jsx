@@ -11,7 +11,7 @@ import { getFriendlyError } from "../../utils/errorMessages.js";
  * Supports OTP-verified signup + JWT login from the backend.
  */
 export function StudentLoginPage({ onSuccess }) {
-  const { setStudent } = useApp();
+  const { student, setStudent } = useApp();
   const navigate = useNavigate();
   const [tab,        setTab]        = useState("login");
   const [email,      setEmail]      = useState("");
@@ -29,6 +29,14 @@ export function StudentLoginPage({ onSuccess }) {
 
   useEffect(() => { setTimeout(() => emailRef.current?.focus(), 300); }, []);
   useEffect(() => { setError(""); setSuccess(""); setPassword(""); setConfirmPw(""); setSignupStep(1); setOtp(""); }, [tab]);
+
+  // ── Redirect if already logged in ─────────────────────────────────
+  useEffect(() => {
+    if (student) {
+      if (onSuccess) onSuccess();
+      else navigate("/", { replace: true });
+    }
+  }, [student, onSuccess, navigate]);
 
   const pwStrength = password.length < 6 ? 1 : password.length < 8 ? 2 : password.length < 10 ? 3 : 4;
   const pwStrengthColor = ["#ef4444","#f59e0b","#06b6d4","#10b981"][pwStrength - 1];
@@ -94,6 +102,15 @@ export function StudentLoginPage({ onSuccess }) {
   const EMailIcon = () => <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><rect x="1" y="3" width="14" height="10" rx="2" stroke="#555" strokeWidth="1.2"/><path d="M1 5l7 5 7-5" stroke="#555" strokeWidth="1.2"/></svg>;
   const LockIcon = () => <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="#555" strokeWidth="1.2"/><path d="M5 7V5a3 3 0 016 0v2" stroke="#555" strokeWidth="1.2" strokeLinecap="round"/></svg>;
   const UserIcon = () => <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="8" cy="5" r="3" stroke="#555" strokeWidth="1.2"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#555" strokeWidth="1.2" strokeLinecap="round"/></svg>;
+
+  // Don't render the auth form if already logged in (redirect effect will fire)
+  if (student) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 20px 20px" }}>
+        <p style={{ color: "#a78bfa", fontSize: 15, fontFamily: "Syne,sans-serif" }}>You're already logged in. Redirecting…</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 20px 20px", position: "relative", zIndex: 10 }}>

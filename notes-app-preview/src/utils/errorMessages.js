@@ -36,6 +36,13 @@ export function getFriendlyError(err) {
     return "Network error. Please check your connection and try again.";
   }
 
+  // Pass through meaningful backend error messages (they're already user-friendly).
+  // Our API layer throws `new Error(data.error)` where data.error is a clean sentence
+  // from the backend like "Account already exists. Please log in instead."
+  if (msg && msg.length > 5 && msg.length < 200 && !msg.includes("at ") && !msg.includes("Error:")) {
+    return msg;
+  }
+
   // Fallback — never show raw messages
   return "Something went wrong. Please try again.";
 }
